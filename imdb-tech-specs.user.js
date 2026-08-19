@@ -1,8 +1,9 @@
 // ==UserScript==
-// @name         UNIT3D IMDb Tech Specs
-// @version      69.431
+// @name         UNIT3D Scripts | IMDb Tech Specs
+// @version      69.433
 // @author       Kat & gizeto
 // @description  IMDb Tech Specs via GraphQL API
+// @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
 // @match        *://*/torrents/*
 // @namespace    https://github.com/gizeto/unit3d-scripts
 // @downloadURL  https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/imdb-tech-specs.user.js

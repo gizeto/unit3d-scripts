@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         UNIT3D Parental Guidance Helper
+// @name         UNIT3D Scripts | IMDb Parental Guidance
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      69.428
+// @version      69.430
 // @description  Add IMDb Parental Guidance Notes on torrent sites
 // @author       Kat & gizeto
+// @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
 // @downloadURL  https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/imdb-parental-guidance.user.js
 // @updateURL    https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/imdb-parental-guidance.user.js
 // @match        *://*/torrents/*
@@ -49,7 +50,7 @@
   };
 
   registerPanelPosition(PANEL_POSITIONS.BEFORE_FIRST_PANEL, 'Before first panel');
-  registerPanelPosition(PANEL_POSITIONS.AFTER_TITLE, 'After title (original)');
+  registerPanelPosition(PANEL_POSITIONS.AFTER_TITLE, 'After title');
 
   const hidetext = false;
   const isToggleableSections = true;
