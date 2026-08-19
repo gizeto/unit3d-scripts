@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | IMDb Parental Guidance
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      69.431
+// @version      69.434
 // @description  Add IMDb Parental Guidance Notes on torrent sites
 // @author       Kat & gizeto
 // @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
@@ -29,8 +29,16 @@
   };
 
   const titleEl = document.querySelector('.meta__title');
-  const firstPanel = document.querySelector('.panelV2');
-  if (!titleEl || !firstPanel) return;
+  const torrentMain = titleEl?.closest('main');
+  const firstPanel = torrentMain?.querySelector('.panelV2');
+  if (!titleEl || !torrentMain || !firstPanel) return;
+
+  const nativeToggleIcon = torrentMain.querySelector(
+    '.panelV2 .fa-plus-circle, .panelV2 .fa-minus-circle'
+  );
+  const iconStyleClass = ['fal', 'fas', 'far'].find((className) =>
+    nativeToggleIcon?.classList.contains(className)
+  ) || 'fas';
 
   const savedPanelPosition = GM_getValue(
     PANEL_POSITION_KEY,
@@ -121,6 +129,10 @@
   const title = document.createElement('h2');
   title.className = 'panel__heading';
   title.textContent = 'IMDb Parental Notes';
+
+  const icon = document.createElement('i');
+  icon.className = `${iconStyleClass} fa-plus-circle fa-pull-right`;
+  title.appendChild(icon);
   header.appendChild(title);
 
   const panelBody = document.createElement('div');
@@ -134,7 +146,7 @@
 
   const anchor =
     titleEl?.closest('section, div') ||
-    document.querySelector('main') ||
+    torrentMain ||
     document.body;
 
   if (panelPosition === PANEL_POSITIONS.BEFORE_FIRST_PANEL && firstPanel) {
@@ -145,31 +157,19 @@
     anchor.insertAdjacentElement('afterend', newPanel);
   }
 
-  const globalToggle = document.createElement('a');
-  globalToggle.href = '#';
-  globalToggle.style.cssText =
-    'margin-left:10px;cursor:pointer;font-size:0.9em;display:inline-flex;align-items:center;gap:6px;';
-
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-plus-circle';
-  globalToggle.appendChild(icon);
-  header.appendChild(globalToggle);
-
   let panelVisible = false;
 
   const togglePanel = (event) => {
     if (event) event.preventDefault();
     panelVisible = !panelVisible;
     panelBody.style.display = panelVisible ? 'block' : 'none';
-    icon.className = panelVisible ? 'fas fa-minus-circle' : 'fas fa-plus-circle';
+    icon.className = panelVisible
+      ? `${iconStyleClass} fa-minus-circle fa-pull-right`
+      : `${iconStyleClass} fa-plus-circle fa-pull-right`;
   };
 
-  globalToggle.onclick = togglePanel;
   header.style.cursor = 'pointer';
-  header.addEventListener('click', (event) => {
-    if (event.target.closest('a')) return;
-    togglePanel(event);
-  });
+  header.addEventListener('click', togglePanel);
 
   const renderMessage = (message, color) => {
     advisoryDiv.replaceChildren();

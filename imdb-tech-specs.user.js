@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | IMDb Tech Specs
-// @version      69.433
+// @version      69.436
 // @author       Kat & gizeto
 // @description  IMDb Tech Specs via GraphQL API
 // @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
@@ -29,8 +29,16 @@
   };
 
   const titleEl = document.querySelector('.meta__title');
-  const firstPanel = document.querySelector('.panelV2');
-  if (!titleEl || !firstPanel) return;
+  const torrentMain = titleEl?.closest('main');
+  const firstPanel = torrentMain?.querySelector('.panelV2');
+  if (!titleEl || !torrentMain || !firstPanel) return;
+
+  const nativeToggleIcon = torrentMain.querySelector(
+    '.panelV2 .fa-plus-circle, .panelV2 .fa-minus-circle'
+  );
+  const iconStyleClass = ['fal', 'fas', 'far'].find((className) =>
+    nativeToggleIcon?.classList.contains(className)
+  ) || 'fas';
 
   const savedPanelPosition = GM_getValue(
     PANEL_POSITION_KEY,
@@ -83,7 +91,7 @@
 
   const fallbackAnchor =
     titleEl?.closest('section, div') ||
-    document.querySelector('main') ||
+    torrentMain ||
     document.body;
 
   const wrapper = document.createElement('section');
@@ -97,6 +105,10 @@
   const title = document.createElement('h2');
   title.className = 'panel__heading';
   title.textContent = 'IMDb Technical Specs';
+
+  const icon = document.createElement('i');
+  icon.className = `${iconStyleClass} fa-plus-circle fa-pull-right`;
+  title.appendChild(icon);
   header.appendChild(title);
 
   const body = document.createElement('div');
@@ -116,32 +128,19 @@
     fallbackAnchor.insertAdjacentElement('afterend', wrapper);
   }
 
-  const globalToggle = document.createElement('a');
-  globalToggle.href = '#';
-  globalToggle.style.cssText =
-    'margin-left:10px;cursor:pointer;font-size:0.9em;display:inline-flex;align-items:center;gap:6px;';
-
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-plus-circle';
-  globalToggle.appendChild(icon);
-  header.appendChild(globalToggle);
-
   let panelVisible = false;
 
   const togglePanel = (e) => {
     if (e) e.preventDefault();
     panelVisible = !panelVisible;
     body.style.display = panelVisible ? 'block' : 'none';
-    icon.className = panelVisible ? 'fas fa-minus-circle' : 'fas fa-plus-circle';
+    icon.className = panelVisible
+      ? `${iconStyleClass} fa-minus-circle fa-pull-right`
+      : `${iconStyleClass} fa-plus-circle fa-pull-right`;
   };
 
-  globalToggle.onclick = togglePanel;
-
   header.style.cursor = 'pointer';
-  header.addEventListener('click', (e) => {
-    if (e.target.closest('a')) return;
-    togglePanel(e);
-  });
+  header.addEventListener('click', togglePanel);
 
   const renderMessage = (message, color) => {
     body.replaceChildren();
