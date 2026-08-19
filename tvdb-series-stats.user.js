@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | TVDB Series Stats
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      1.2
+// @version      1.4
 // @description  Show TVDB status, season count, and episode count in UNIT3D series metadata
 // @author       gizeto
 // @match        *://*/torrents/*
@@ -364,18 +364,32 @@
         return `${count.toLocaleString()} ${singular}${count === 1 ? '' : 's'}`;
     }
 
+    function isUnsetRuntime(runtimeTag) {
+        return runtimeTag?.textContent.trim() === '0s';
+    }
+
     function getExistingFields(tags, stats) {
         const nativeTags = [...tags.children].filter(tag =>
             ![...tag.classList].some(className => className.startsWith('work__tvdb-'))
         );
         const normalizedStatus = stats.status.trim().toLocaleLowerCase();
+        const seasonsTag = nativeTags.find(tag => /\bseasons?\b/i.test(tag.textContent));
+        const episodesTag = nativeTags.find(tag => /\bepisodes?\b/i.test(tag.textContent));
+        const statsTags = new Set([seasonsTag, episodesTag].filter(Boolean));
+        let lastStatsTag = null;
+        nativeTags.forEach(tag => {
+            if (statsTags.has(tag)) {
+                lastStatsTag = tag;
+            }
+        });
 
         return {
-            seasons: nativeTags.some(tag => /\bseasons?\b/i.test(tag.textContent)),
-            episodes: nativeTags.some(tag => /\bepisodes?\b/i.test(tag.textContent)),
+            seasons: Boolean(seasonsTag),
+            episodes: Boolean(episodesTag),
             status: nativeTags.some(tag =>
                 tag.textContent.trim().toLocaleLowerCase() === normalizedStatus
-            )
+            ),
+            lastStatsTag
         };
     }
 
@@ -407,7 +421,12 @@
             return;
         }
 
-        statusTag.replaceWith(...generatedTags);
+        if (existing.lastStatsTag) {
+            statusTag.remove();
+            existing.lastStatsTag.after(...generatedTags);
+        } else {
+            statusTag.replaceWith(...generatedTags);
+        }
     }
 
     function renderError(statusTag, error) {
@@ -435,7 +454,9 @@
 
         const statusTag = createTag('work__tvdb-status', 'TVDB: Loading…');
         const runtimeTag = tags.querySelector('.work__runtime');
-        if (runtimeTag) {
+        if (isUnsetRuntime(runtimeTag)) {
+            runtimeTag.replaceWith(statusTag);
+        } else if (runtimeTag) {
             runtimeTag.after(statusTag);
         } else {
             tags.append(statusTag);
