@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | TVDB Series Stats
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      1.1
+// @version      1.2
 // @description  Show TVDB status, season count, and episode count in UNIT3D series metadata
 // @author       gizeto
 // @match        *://*/torrents/*
@@ -364,20 +364,50 @@
         return `${count.toLocaleString()} ${singular}${count === 1 ? '' : 's'}`;
     }
 
-    function renderStats(statusTag, stats, note = '') {
-        const seasonsTag = createTag('work__tvdb-seasons', formatCount(stats.seasons, 'Season'));
-        const episodesTag = createTag('work__tvdb-episodes', formatCount(stats.episodes, 'Episode'));
-        const seriesStatusTag = createTag('work__tvdb-series-status', stats.status);
+    function getExistingFields(tags, stats) {
+        const nativeTags = [...tags.children].filter(tag =>
+            ![...tag.classList].some(className => className.startsWith('work__tvdb-'))
+        );
+        const normalizedStatus = stats.status.trim().toLocaleLowerCase();
+
+        return {
+            seasons: nativeTags.some(tag => /\bseasons?\b/i.test(tag.textContent)),
+            episodes: nativeTags.some(tag => /\bepisodes?\b/i.test(tag.textContent)),
+            status: nativeTags.some(tag =>
+                tag.textContent.trim().toLocaleLowerCase() === normalizedStatus
+            )
+        };
+    }
+
+    function renderStats(statusTag, tags, stats, note = '') {
+        const existing = getExistingFields(tags, stats);
         const specialsNote = stats.specials > 0
             ? `${stats.specials.toLocaleString()} season 0 special${stats.specials === 1 ? '' : 's'} excluded.`
             : 'Season 0 specials are excluded.';
+        const generatedTags = [];
 
-        seasonsTag.title = [specialsNote, note].filter(Boolean).join(' ');
-        episodesTag.title = seasonsTag.title;
-        seriesStatusTag.title = ['TVDB series status.', note].filter(Boolean).join(' ');
-        statusTag.replaceWith(seasonsTag);
-        seasonsTag.after(episodesTag);
-        episodesTag.after(seriesStatusTag);
+        if (!existing.seasons) {
+            const seasonsTag = createTag('work__tvdb-seasons', formatCount(stats.seasons, 'Season'));
+            seasonsTag.title = [specialsNote, note].filter(Boolean).join(' ');
+            generatedTags.push(seasonsTag);
+        }
+        if (!existing.episodes) {
+            const episodesTag = createTag('work__tvdb-episodes', formatCount(stats.episodes, 'Episode'));
+            episodesTag.title = [specialsNote, note].filter(Boolean).join(' ');
+            generatedTags.push(episodesTag);
+        }
+        if (!existing.status) {
+            const seriesStatusTag = createTag('work__tvdb-series-status', stats.status);
+            seriesStatusTag.title = ['TVDB series status.', note].filter(Boolean).join(' ');
+            generatedTags.push(seriesStatusTag);
+        }
+
+        if (generatedTags.length === 0) {
+            statusTag.remove();
+            return;
+        }
+
+        statusTag.replaceWith(...generatedTags);
     }
 
     function renderError(statusTag, error) {
@@ -413,19 +443,19 @@
 
         const cached = getCachedStats(tvdbId);
         if (cached) {
-            renderStats(statusTag, cached);
+            renderStats(statusTag, tags, cached);
             return;
         }
 
         try {
             const stats = await fetchStats(tvdbId);
             cacheStats(tvdbId, stats);
-            renderStats(statusTag, stats);
+            renderStats(statusTag, tags, stats);
         } catch (error) {
             const stale = getCachedStats(tvdbId, true);
             if (stale) {
                 const detail = error instanceof Error ? error.message : String(error);
-                renderStats(statusTag, stale, `Cached data shown because refresh failed: ${detail}`);
+                renderStats(statusTag, tags, stale, `Cached data shown because refresh failed: ${detail}`);
                 return;
             }
 

@@ -31,4 +31,4 @@ The selected position is marked with `✓`; choosing another position saves it a
 - **Set TVDB token** — saves a bearer token directly. The script uses it before trying the API key.
 - **Clear TVDB stats cache** — removes the cached counts. Successful results are normally cached for 24 hours.
 
-The script shows the TVDB series status, regular seasons, and episodes in the metadata tag row. Season 0 specials are excluded. Submit an empty API-key or token value to remove it; reload after changing either setting.
+The script shows the TVDB series status, regular seasons, and episodes in the metadata tag row. Fields already provided by the site are not duplicated. Season 0 specials are excluded. Submit an empty API-key or token value to remove it; reload after changing either setting.
