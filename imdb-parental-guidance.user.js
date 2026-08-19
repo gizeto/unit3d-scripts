@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | IMDb Parental Guidance
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      69.430
+// @version      69.431
 // @description  Add IMDb Parental Guidance Notes on torrent sites
 // @author       Kat & gizeto
 // @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
