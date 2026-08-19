@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         UNIT3D Scripts | TVDB Series Stats
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      1.4
-// @description  Show TVDB status, season count, and episode count in UNIT3D series metadata
+// @version      1.8
+// @description  Show TVDB status and aired season and episode counts in UNIT3D series metadata
 // @author       gizeto
 // @match        *://*/torrents/*
 // @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
@@ -311,9 +311,19 @@
             page = nextPage;
         }
 
-        const allEpisodes = [...episodes.values()];
-        const regularEpisodes = allEpisodes.filter(episode => Number(episode.seasonNumber) > 0);
-        const specials = allEpisodes.filter(episode => Number(episode.seasonNumber) === 0).length;
+        const now = new Date();
+        const today = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, '0'),
+            String(now.getDate()).padStart(2, '0')
+        ].join('-');
+        const airedEpisodes = [...episodes.values()].filter(episode =>
+            typeof episode.aired === 'string'
+            && episode.aired.length > 0
+            && episode.aired <= today
+        );
+        const regularEpisodes = airedEpisodes.filter(episode => Number(episode.seasonNumber) > 0);
+        const specials = airedEpisodes.filter(episode => Number(episode.seasonNumber) === 0).length;
         const seasons = new Set(regularEpisodes.map(episode => Number(episode.seasonNumber))).size;
 
         return {
@@ -395,9 +405,7 @@
 
     function renderStats(statusTag, tags, stats, note = '') {
         const existing = getExistingFields(tags, stats);
-        const specialsNote = stats.specials > 0
-            ? `${stats.specials.toLocaleString()} season 0 special${stats.specials === 1 ? '' : 's'} excluded.`
-            : 'Season 0 specials are excluded.';
+        const specialsNote = `${stats.specials.toLocaleString()} specials excluded. Only aired episodes counted.`
         const generatedTags = [];
 
         if (!existing.seasons) {
