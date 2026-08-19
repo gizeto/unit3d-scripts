@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         UNIT3D Favorite Subtitle Flags
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      0.7
+// @version      0.8
 // @description  Show flags for favorite subtitle languages on UNIT3D torrents
 // @author       gizeto
-// @match        */torrents
-// @match        */torrents?*
-// @match        */torrents/similar/*
+// @match        *://*/torrents
+// @match        *://*/torrents?*
+// @match        *://*/torrents/similar/*
 // @icon         https://hdinnovations.github.io/HDInnovations/media/favicon.ico
 // @updateURL    https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/subtitle-flags.user.js
 // @downloadURL  https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/subtitle-flags.user.js

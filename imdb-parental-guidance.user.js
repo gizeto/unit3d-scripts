@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         UNIT3D Parental Guidance Helper
 // @namespace    https://github.com/gizeto/unit3d-scripts
-// @version      69.427
+// @version      69.428
 // @description  Add IMDb Parental Guidance Notes on torrent sites
 // @author       Kat & gizeto
 // @downloadURL  https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/imdb-parental-guidance.user.js
 // @updateURL    https://raw.githubusercontent.com/gizeto/unit3d-scripts/master/imdb-parental-guidance.user.js
-// @match        */torrents/*
+// @match        *://*/torrents/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @grant        GM_getValue
